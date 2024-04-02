@@ -11,6 +11,7 @@ import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,8 @@ public class LocacaoServiceTest {
 
     @Test
     public void deveAlugarFilmeComSucesso() throws Exception {
+        Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+
         //cenario
         Usuario usuario = new Usuario("Usuario 1");
         List<Filme> filmes = new ArrayList<>();
@@ -173,5 +176,23 @@ public class LocacaoServiceTest {
 
         //verificacao
         assertThat(resultado.getValor(), is(14.0));
+    }
+
+    @Test
+    //@Ignore -> bom para deixar o test em stand-by, por algum motivo, e nao perder ele, por conta que sera mostrado que ele foi ignorado
+    public void deveDevolverNaSegundaAoAlugarSabado() throws FilmeSemEstoqueException, LocadoraException {
+        Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+
+        //cenario
+        Usuario usuario = new Usuario("Usuario 1");
+        List<Filme> filmes = new ArrayList<>();
+        filmes.add(new Filme("Filme 1", 1, 5.0));
+
+        //acao
+        Locacao retorno = locacaoService.alugarFilme(usuario, filmes);
+
+        //verificacao
+        boolean isSegunda = DataUtils.verificarDiaSemana(retorno.getDataRetorno(), Calendar.MONDAY);
+        Assert.assertTrue(isSegunda);
     }
 }
