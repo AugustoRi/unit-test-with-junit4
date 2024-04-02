@@ -10,12 +10,18 @@ import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 public class LocacaoServiceTest {
+
+    //desafio = devo conseguir alugar mais que um filme por vez
+    //no parametro que tenho so um filme, devo ter uma lista de filmes
+    //no objeto Locacao, ao inves de ser so um atributo filme, deve ser uma lista de filmes
 
     private LocacaoService locacaoService;
 
@@ -34,13 +40,15 @@ public class LocacaoServiceTest {
     public void testLocacao() throws Exception {
         //cenario
         Usuario usuario = new Usuario("Usuario 1");
-        Filme filme = new Filme("Filme 1", 2, 5.0);
+        List<Filme> filmes = new ArrayList<>();
+        filmes.add(new Filme("Filme 1", 2, 5.0));
+        filmes.add(new Filme("Filme 2", 5, 5.0));
 
         //acao
-        Locacao locacao = locacaoService.alugarFilme(usuario, filme);
+        Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
 
         //verificacao
-        error.checkThat(locacao.getValor(), is(equalTo(5.0)));
+        error.checkThat(locacao.getValor(), is(equalTo(10.0)));
         error.checkThat(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
         error.checkThat(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
     }
@@ -50,10 +58,12 @@ public class LocacaoServiceTest {
     public void testLocacao_filmeSemEstoque() throws Exception {
         //cenario
         Usuario usuario = new Usuario("Usuario 1");
-        Filme filme = new Filme("Filme 1", 0, 5.0);
+        List<Filme> filmes = new ArrayList<>();
+        filmes.add(new Filme("Filme 1", 0, 5.0));
+        filmes.add(new Filme("Filme 2", 6, 5.0));
 
         //acao
-        Locacao locacao = locacaoService.alugarFilme(usuario, filme);
+        Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
     }
 
     //utilizada quando quero tratar a excecao e inserir mais passos, como imprimir uma mensagem
@@ -61,11 +71,13 @@ public class LocacaoServiceTest {
     @Test
     public void testLocacao_usuarioVazio() throws FilmeSemEstoqueException {
         //cenario
-        Filme filme = new Filme("Filme 1", 1, 4.0);
+        List<Filme> filmes = new ArrayList<>();
+        filmes.add(new Filme("Filme 1", 2, 5.0));
+        filmes.add(new Filme("Filme 2", 5, 5.0));
 
         //acao
         try {
-            Locacao locacao = locacaoService.alugarFilme(null, filme);
+            Locacao locacao = locacaoService.alugarFilme(null, filmes);
             Assert.fail();
         } catch (LocadoraException e) {
             Assert.assertThat(e.getMessage(), is("Usuario vazio"));
@@ -81,9 +93,26 @@ public class LocacaoServiceTest {
     public void testLocacao_filmeVazio() throws FilmeSemEstoqueException, LocadoraException {
         //cenario
         Usuario usuario = new Usuario("Usuario 1");
+        List<Filme> filmes = new ArrayList<>();
+        filmes.add(new Filme("Filme 1", 2, 5.0));
+        filmes.add(null);
 
         expectedException.expect(LocadoraException.class);
         expectedException.expectMessage("Filme vazio");
+
+        //acao
+        Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
+
+        System.out.println("Forma com expectedException");
+    }
+
+    @Test
+    public void testLocacao_listaFilmesVazia() throws FilmeSemEstoqueException, LocadoraException {
+        //cenario
+        Usuario usuario = new Usuario("Usuario 1");
+
+        expectedException.expect(LocadoraException.class);
+        expectedException.expectMessage("Lista de filmes vazia");
 
         //acao
         Locacao locacao = locacaoService.alugarFilme(usuario, null);
