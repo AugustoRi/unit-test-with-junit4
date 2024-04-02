@@ -3,6 +3,8 @@ package br.ce.wcaquino.servicos;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
+import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
+import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -21,7 +23,7 @@ public class LocacaoServiceTest {
     public ErrorCollector error = new ErrorCollector();
 
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testLocacao() throws Exception {
@@ -39,8 +41,8 @@ public class LocacaoServiceTest {
         error.checkThat(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
     }
 
-    // forma com expected do junit, superficial, generica
-    @Test(expected = Exception.class)
+    //utilizada quando apenas a excecao importa para o teste
+    @Test(expected = FilmeSemEstoqueException.class)
     public void testLocacao_filmeSemEstoque() throws Exception {
         //cenario
         LocacaoService locacaoService = new LocacaoService();
@@ -51,35 +53,40 @@ public class LocacaoServiceTest {
         Locacao locacao = locacaoService.alugarFilme(usuario, filme);
     }
 
-    // forma mais manual, robusta, com mais controle
+    //utilizada quando quero tratar a excecao e inserir mais passos, como imprimir uma mensagem
+    //recomendacao para padronizacao, por se tratar da forma mais completa
     @Test
-    public void testLocacao_filmeSemEstoque_robusta() {
+    public void testLocacao_usuarioVazio() throws FilmeSemEstoqueException {
         //cenario
         LocacaoService locacaoService = new LocacaoService();
-        Usuario usuario = new Usuario("Usuario 1");
-        Filme filme = new Filme("Filme 1", 0, 5.0);
+        Filme filme = new Filme("Filme 1", 1, 4.0);
 
         //acao
         try {
-            Locacao locacao = locacaoService.alugarFilme(usuario, filme);
-            Assert.fail("Deveria ter lancado uma excecao!");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Filme sem estoque"));
+            Locacao locacao = locacaoService.alugarFilme(null, filme);
+            Assert.fail();
+        } catch (LocadoraException e) {
+            Assert.assertThat(e.getMessage(), is("Usuario vazio"));
         }
+
+        //consigo inserir mais passos e refletir depois de tratar a excecao
+        System.out.println("Forma robusta");
     }
 
-    // forma com expectedException
+    //utilizada quando quero tratar a excecao e inserir mais passos, como imprimir uma mensagem
+    //atende a maioria dos casos, mas tem alguns que somente a forma robusta seria o ideal
     @Test
-    public void testLocacao_filmeSemEstoque_expected() throws Exception {
+    public void testLocacao_filmeVazio() throws FilmeSemEstoqueException, LocadoraException {
         //cenario
         LocacaoService locacaoService = new LocacaoService();
         Usuario usuario = new Usuario("Usuario 1");
-        Filme filme = new Filme("Filme 1", 0, 5.0);
 
-        exception.expect(Exception.class);
-        exception.expectMessage("Filme sem estoque");
+        expectedException.expect(LocadoraException.class);
+        expectedException.expectMessage("Filme vazio");
 
         //acao
-        Locacao locacao = locacaoService.alugarFilme(usuario, filme);
+        Locacao locacao = locacaoService.alugarFilme(usuario, null);
+
+        System.out.println("Forma com expectedException");
     }
 }
