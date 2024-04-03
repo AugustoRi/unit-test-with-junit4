@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DiaSemanaMatcher extends TypeSafeMatcher<Date> {
-
     private Integer diaSemana;
 
     public DiaSemanaMatcher(Integer diaSemana) {
