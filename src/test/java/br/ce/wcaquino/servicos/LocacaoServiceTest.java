@@ -5,6 +5,7 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
+import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.utils.DataUtils;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
@@ -15,6 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static br.ce.wcaquino.matchers.MatchersProprios.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -47,8 +49,8 @@ public class LocacaoServiceTest {
 
         //verificacao
         error.checkThat(locacao.getValor(), is(equalTo(10.0)));
-        error.checkThat(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
-        error.checkThat(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
+        error.checkThat(locacao.getDataLocacao(), ehHoje());
+        error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDias(1));
     }
 
     @Test(expected = FilmeSemEstoqueException.class)
@@ -104,8 +106,6 @@ public class LocacaoServiceTest {
 
         //acao
         Locacao locacao = locacaoService.alugarFilme(usuario, null);
-
-        System.out.println("Forma com expectedException");
     }
 
     @Test
@@ -122,7 +122,6 @@ public class LocacaoServiceTest {
         Locacao retorno = locacaoService.alugarFilme(usuario, filmes);
 
         //verificacao
-        boolean isSegunda = DataUtils.verificarDiaSemana(retorno.getDataRetorno(), Calendar.MONDAY);
-        Assert.assertTrue(isSegunda);
+        assertThat(retorno.getDataRetorno(), caiNumaSegunda());
     }
 }
