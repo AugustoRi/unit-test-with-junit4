@@ -1,21 +1,20 @@
 package br.ce.wcaquino.servicos;
 
+import br.ce.wcaquino.builders.FilmeBuilder;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
-import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.utils.DataUtils;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import static br.ce.wcaquino.builders.FilmeBuilder.*;
+import static br.ce.wcaquino.builders.UsuarioBuilder.umUsuario;
 import static br.ce.wcaquino.matchers.MatchersProprios.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -39,10 +38,11 @@ public class LocacaoServiceTest {
         Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 
         //cenario
-        Usuario usuario = new Usuario("Usuario 1");
-        List<Filme> filmes = new ArrayList<>();
-        filmes.add(new Filme("Filme 1", 2, 5.0));
-        filmes.add(new Filme("Filme 2", 5, 5.0));
+        Usuario usuario = umUsuario().agora();
+        List<Filme> filmes = Arrays.asList(
+                umFilme().comValor(5.0).agora(),
+                umFilme().comValor(5.0).agora()
+        );
 
         //acao
         Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
@@ -56,10 +56,8 @@ public class LocacaoServiceTest {
     @Test(expected = FilmeSemEstoqueException.class)
     public void naoDeveAlugarFilmeSemEstoque() throws Exception {
         //cenario
-        Usuario usuario = new Usuario("Usuario 1");
-        List<Filme> filmes = new ArrayList<>();
-        filmes.add(new Filme("Filme 1", 0, 5.0));
-        filmes.add(new Filme("Filme 2", 6, 5.0));
+        Usuario usuario = umUsuario().agora();
+        List<Filme> filmes = Collections.singletonList(umFilme().semEstoque().agora());
 
         //acao
         Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
@@ -68,9 +66,7 @@ public class LocacaoServiceTest {
     @Test
     public void naoDeveAlugarFilmeSemUsuario() throws FilmeSemEstoqueException {
         //cenario
-        List<Filme> filmes = new ArrayList<>();
-        filmes.add(new Filme("Filme 1", 2, 5.0));
-        filmes.add(new Filme("Filme 2", 5, 5.0));
+        List<Filme> filmes = Collections.singletonList(umFilme().agora());
 
         //acao
         try {
@@ -84,10 +80,8 @@ public class LocacaoServiceTest {
     @Test
     public void naoDeveAlugarFilmeSemAlgumFilme() throws FilmeSemEstoqueException, LocadoraException {
         //cenario
-        Usuario usuario = new Usuario("Usuario 1");
-        List<Filme> filmes = new ArrayList<>();
-        filmes.add(new Filme("Filme 1", 2, 5.0));
-        filmes.add(null);
+        Usuario usuario = umUsuario().agora();
+        List<Filme> filmes = Arrays.asList(umFilme().agora(), null);
 
         expectedException.expect(LocadoraException.class);
         expectedException.expectMessage("Filme vazio");
@@ -99,7 +93,7 @@ public class LocacaoServiceTest {
     @Test
     public void naoDeveAlugarFilmeSemFilmes() throws FilmeSemEstoqueException, LocadoraException {
         //cenario
-        Usuario usuario = new Usuario("Usuario 1");
+        Usuario usuario = umUsuario().agora();
 
         expectedException.expect(LocadoraException.class);
         expectedException.expectMessage("Lista de filmes vazia");
@@ -114,9 +108,8 @@ public class LocacaoServiceTest {
         Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 
         //cenario
-        Usuario usuario = new Usuario("Usuario 1");
-        List<Filme> filmes = new ArrayList<>();
-        filmes.add(new Filme("Filme 1", 1, 5.0));
+        Usuario usuario = umUsuario().agora();
+        List<Filme> filmes = Collections.singletonList(umFilme().agora());
 
         //acao
         Locacao retorno = locacaoService.alugarFilme(usuario, filmes);
