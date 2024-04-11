@@ -1,6 +1,5 @@
 package br.ce.wcaquino.servicos;
 
-import br.ce.wcaquino.builders.FilmeBuilder;
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -41,6 +40,8 @@ public class CalculoValorLocacaoTest {
         locacaoService = new LocacaoService();
         LocacaoDAO dao = Mockito.mock(LocacaoDAO.class);
         locacaoService.setLocacaoDAO(dao);
+        SerasaService serasaService = Mockito.mock(SerasaService.class);
+        locacaoService.setSerasaService(serasaService);
     }
 
     private static Filme filme1 = umFilme().agora();

@@ -1,6 +1,5 @@
 package br.ce.wcaquino.servicos;
 
-import br.ce.wcaquino.builders.FilmeBuilder;
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -11,7 +10,6 @@ import br.ce.wcaquino.utils.DataUtils;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -20,9 +18,11 @@ import static br.ce.wcaquino.builders.UsuarioBuilder.umUsuario;
 import static br.ce.wcaquino.matchers.MatchersProprios.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class LocacaoServiceTest {
     private LocacaoService locacaoService;
+    private SerasaService serasaService;
 
     @Rule
     public ErrorCollector error = new ErrorCollector();
@@ -33,8 +33,10 @@ public class LocacaoServiceTest {
     @Before
     public void setup() {
         locacaoService = new LocacaoService();
-        LocacaoDAO dao = Mockito.mock(LocacaoDAO.class);
+        LocacaoDAO dao = mock(LocacaoDAO.class);
         locacaoService.setLocacaoDAO(dao);
+        serasaService = mock(SerasaService.class);
+        locacaoService.setSerasaService(serasaService);
     }
 
     @Test
@@ -120,5 +122,20 @@ public class LocacaoServiceTest {
 
         //verificacao
         assertThat(retorno.getDataRetorno(), caiNumaSegunda());
+    }
+
+    @Test
+    public void naoDeveAlugarFilmeParaNegativadoSerasa() throws FilmeSemEstoqueException, LocadoraException {
+        //cenario
+        Usuario usuario = umUsuario().agora();
+        List<Filme> filmes = Collections.singletonList(umFilme().agora());
+
+        when(serasaService.possuiNegativacao(usuario)).thenReturn(true);
+
+        expectedException.expect(LocadoraException.class);
+        expectedException.expectMessage("Usuário Negativado");
+
+        //acao
+        locacaoService.alugarFilme(usuario, filmes);
     }
 }
