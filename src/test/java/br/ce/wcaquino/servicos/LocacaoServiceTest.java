@@ -1,16 +1,17 @@
 package br.ce.wcaquino.servicos;
 
 import br.ce.wcaquino.builders.FilmeBuilder;
+import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
-import buildermaster.BuilderMaster;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -32,6 +33,8 @@ public class LocacaoServiceTest {
     @Before
     public void setup() {
         locacaoService = new LocacaoService();
+        LocacaoDAO dao = Mockito.mock(LocacaoDAO.class);
+        locacaoService.setLocacaoDAO(dao);
     }
 
     @Test
