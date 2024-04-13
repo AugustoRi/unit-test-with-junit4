@@ -39,7 +39,15 @@ public class LocacaoService {
             }
         }
 
-		if(serasaService.possuiNegativacao(usuario)) {
+		boolean negativado;
+
+        try {
+			negativado = serasaService.possuiNegativacao(usuario);
+        } catch (Exception e) {
+            throw new LocadoraException("Problema com Serasa, tente novamente");
+        }
+
+		if(negativado) {
 			throw new LocadoraException("Usuário Negativado");
 		}
 

@@ -134,12 +134,12 @@ public class LocacaoServiceTest {
     }
 
     @Test
-    public void naoDeveAlugarFilmeParaNegativadoSerasa() throws FilmeSemEstoqueException {
+    public void naoDeveAlugarFilmeParaNegativadoSerasa() throws Exception {
         //cenario
         Usuario usuario = umUsuario().agora();
         List<Filme> filmes = Collections.singletonList(umFilme().agora());
 
-        when(serasaService.possuiNegativacao(Mockito.any(Usuario.class))).thenReturn(true);
+        when(serasaService.possuiNegativacao(any(Usuario.class))).thenReturn(true);
 
         //acao
         try {
@@ -172,10 +172,26 @@ public class LocacaoServiceTest {
         locacaoService.notificarAtrasos();
 
         //verificacao
-        verify(emailService, times(3)).notificarAtraso(Mockito.any(Usuario.class));
+        verify(emailService, times(3)).notificarAtraso(any(Usuario.class));
         verify(emailService).notificarAtraso(usuario);
         verify(emailService, atLeastOnce()).notificarAtraso(usuario3);
         verify(emailService, never()).notificarAtraso(usuario2);
         verifyNoMoreInteractions(emailService);
+    }
+
+    @Test
+    public void deveTratarErrosnaSerasa() throws Exception {
+        //cenario
+        Usuario usuario = umUsuario().agora();
+        List<Filme> filmes = Collections.singletonList(umFilme().agora());
+
+        when(serasaService.possuiNegativacao(any(Usuario.class))).thenThrow(new Exception("Instabilidade do serviço"));
+
+        //verificacao
+        expectedException.expect(LocadoraException.class);
+        expectedException.expectMessage("Problema com Serasa, tente novamente");
+
+        //acao
+        locacaoService.alugarFilme(usuario, filmes);
     }
 }
