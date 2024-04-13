@@ -10,21 +10,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static br.ce.wcaquino.builders.FilmeBuilder.*;
+import static br.ce.wcaquino.builders.FilmeBuilder.umFilme;
 import static br.ce.wcaquino.builders.UsuarioBuilder.umUsuario;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.runners.Parameterized.*;
+import static org.junit.runners.Parameterized.Parameter;
+import static org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class CalculoValorLocacaoTest {
+    @InjectMocks
     private LocacaoService locacaoService;
+    @Mock
+    private LocacaoDAO locacaoDAO;
+    @Mock
+    private SerasaService serasaService;
 
     @Parameter
     public List<Filme> filmes;
@@ -37,11 +45,7 @@ public class CalculoValorLocacaoTest {
 
     @Before
     public void setup() {
-        locacaoService = new LocacaoService();
-        LocacaoDAO dao = Mockito.mock(LocacaoDAO.class);
-        locacaoService.setLocacaoDAO(dao);
-        SerasaService serasaService = Mockito.mock(SerasaService.class);
-        locacaoService.setSerasaService(serasaService);
+        MockitoAnnotations.openMocks(this);
     }
 
     private static Filme filme1 = umFilme().agora();

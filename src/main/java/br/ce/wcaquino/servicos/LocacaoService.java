@@ -1,11 +1,5 @@
 package br.ce.wcaquino.servicos;
 
-import static br.ce.wcaquino.utils.DataUtils.adicionarDias;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -13,6 +7,12 @@ import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import static br.ce.wcaquino.utils.DataUtils.adicionarDias;
 
 public class LocacaoService {
 
@@ -100,17 +100,5 @@ public class LocacaoService {
 				emailService.notificarAtraso(locacao.getUsuario());
 			}
 		});
-	}
-
-	public void setLocacaoDAO(LocacaoDAO dao) {
-		this.dao = dao;
-	}
-
-	public void setSerasaService(SerasaService service) {
-		serasaService = service;
-	}
-
-	public void setEmailService(EmailService service) {
-		emailService = service;
 	}
 }

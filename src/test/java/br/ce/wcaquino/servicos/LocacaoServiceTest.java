@@ -9,23 +9,32 @@ import br.ce.wcaquino.exceptions.LocadoraException;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.*;
 
-import static br.ce.wcaquino.builders.FilmeBuilder.*;
-import static br.ce.wcaquino.builders.LocacaoBuilder.*;
+import static br.ce.wcaquino.builders.FilmeBuilder.umFilme;
+import static br.ce.wcaquino.builders.LocacaoBuilder.umLocacao;
 import static br.ce.wcaquino.builders.UsuarioBuilder.umUsuario;
 import static br.ce.wcaquino.matchers.MatchersProprios.*;
-import static br.ce.wcaquino.utils.DataUtils.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static br.ce.wcaquino.utils.DataUtils.verificarDiaSemana;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class LocacaoServiceTest {
+    @InjectMocks
     private LocacaoService locacaoService;
+    @Mock
     private SerasaService serasaService;
+    @Mock
     private LocacaoDAO locacaoDAO;
+    @Mock
     private EmailService emailService;
 
     @Rule
@@ -36,16 +45,7 @@ public class LocacaoServiceTest {
 
     @Before
     public void setup() {
-        locacaoService = new LocacaoService();
-
-        locacaoDAO = mock(LocacaoDAO.class);
-        locacaoService.setLocacaoDAO(locacaoDAO);
-
-        serasaService = mock(SerasaService.class);
-        locacaoService.setSerasaService(serasaService);
-
-        emailService = mock(EmailService.class);
-        locacaoService.setEmailService(emailService);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
