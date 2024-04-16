@@ -22,10 +22,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static br.ce.wcaquino.builders.FilmeBuilder.umFilme;
 import static br.ce.wcaquino.builders.LocacaoBuilder.umLocacao;
@@ -68,7 +65,11 @@ public class LocacaoServiceTest {
                 umFilme().comValor(5.0).agora(),
                 umFilme().comValor(5.0).agora()
         );
-        PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(12, 4, 2024));
+//        PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(12, 4, 2024));
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2024, Calendar.APRIL, 12);
+        PowerMockito.mockStatic(Calendar.class);
+        PowerMockito.when(Calendar.getInstance()).thenReturn(calendar);
 
         //acao
         Locacao locacao = locacaoService.alugarFilme(usuario, filmes);
@@ -134,13 +135,19 @@ public class LocacaoServiceTest {
         //cenario
         Usuario usuario = umUsuario().agora();
         List<Filme> filmes = Collections.singletonList(umFilme().agora());
-        PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(13, 4, 2024));
+
+//        PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(13, 4, 2024));
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2024, Calendar.APRIL, 13);
+        PowerMockito.mockStatic(Calendar.class);
+        PowerMockito.when(Calendar.getInstance()).thenReturn(calendar);
 
         //acao
         Locacao retorno = locacaoService.alugarFilme(usuario, filmes);
 
         //verificacao
         assertThat(retorno.getDataRetorno(), caiNumaSegunda());
+//        PowerMockito.verifyNew(Date.class, Mockito.times(2)).withNoArguments();
     }
 
     @Test
